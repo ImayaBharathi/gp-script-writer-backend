@@ -20,7 +20,7 @@ class Script(Timestamp, Base):
     genre = Column(String)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
     last_modified_at = Column(DateTime, onupdate=datetime.utcnow)
-
+    logline = Column(String)
     user = relationship("User", backref="scripts")
 
 class ScriptVersion(Timestamp, Base):

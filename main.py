@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 ##### API Imports
 import api.users_api
-
+import api.scripts_api
 
 
 ##### DB Engine & Model Imports
@@ -33,6 +33,7 @@ app.add_middleware(
 )
 
 app.include_router(api.users_api.router)
+app.include_router(api.scripts_api.router)
 
 @app.get("/health_check", tags=["Health Check"]) #### the status check endpoint is duplicated cause most cloud service expect this under /health_check url
 def status_check():

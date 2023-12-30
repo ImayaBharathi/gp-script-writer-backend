@@ -75,7 +75,7 @@ def google_login(id_token: str):
         raise HTTPException(status_code=401, detail="Invalid Google ID token")
     
 
-@router.post("/user-details", tags=["user_details"], response_model=UserDetails)
+@router.post("/user-details", tags=["User Details"], response_model=UserDetails)
 def create_user_details(
     user_id: int,
     other_info: str,
@@ -84,7 +84,7 @@ def create_user_details(
 ):
     return user_utils.create_user_details(db, user_id, other_info)
 
-@router.get("/user-details/{user_details_id}", tags=["user_details"], response_model=UserDetails)
+@router.get("/user-details/{user_details_id}", tags=["User Details"], response_model=UserDetails)
 def read_user_details(
     user_details_id: int,
     db: Session = Depends(get_db),
@@ -95,7 +95,7 @@ def read_user_details(
         raise HTTPException(status_code=404, detail="UserDetails not found")
     return user_details
 
-@router.put("/user-details/{user_details_id}", tags=["user_details"], response_model=UserDetails)
+@router.put("/user-details/{user_details_id}", tags=["User Details"], response_model=UserDetails)
 def update_user_details(
     user_details_id: int,
     other_info: str,
@@ -107,7 +107,7 @@ def update_user_details(
         raise HTTPException(status_code=404, detail="UserDetails not found")
     return user_details
 
-@router.delete("/user-details/{user_details_id}", tags=["user_details"])
+@router.delete("/user-details/{user_details_id}", tags=["User Details"])
 def delete_user_details(
     user_details_id: int,
     db: Session = Depends(get_db),

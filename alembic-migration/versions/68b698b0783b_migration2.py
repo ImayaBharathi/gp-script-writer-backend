@@ -78,7 +78,7 @@ def upgrade() -> None:
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('genre', sa.String(), nullable=True),
     sa.Column('user_id', sa.UUID(), nullable=True),
-    sa.Column('last_modified_at', sa.DateTime(), nullable=True),
+    sa.Column('logline', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),

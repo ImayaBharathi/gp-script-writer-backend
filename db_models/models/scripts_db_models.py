@@ -33,7 +33,6 @@ class ScriptVersion(Timestamp, Base):
     script_file_url = Column(String)
     change_summary = Column(String)
     modified_by = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
-    created_at = Column(UUID(as_uuid=True), default=datetime.utcnow)
 
     # Relationships
     script = relationship("Script", backref="script_versions")

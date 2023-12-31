@@ -1,8 +1,8 @@
-"""migration2
+"""first migration
 
-Revision ID: 68b698b0783b
+Revision ID: ba04ba7d4202
 Revises: 
-Create Date: 2023-12-29 23:23:44.285086
+Create Date: 2023-12-31 23:20:10.198393
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '68b698b0783b'
+revision: str = 'ba04ba7d4202'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -78,6 +78,7 @@ def upgrade() -> None:
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('genre', sa.String(), nullable=True),
     sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.Column('last_modified_at', sa.DateTime(), nullable=True),
     sa.Column('logline', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
@@ -150,7 +151,7 @@ def upgrade() -> None:
     sa.Column('script_file_url', sa.String(), nullable=True),
     sa.Column('change_summary', sa.String(), nullable=True),
     sa.Column('modified_by', sa.UUID(), nullable=True),
-    sa.Column('created_at', sa.UUID(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['modified_by'], ['users.user_id'], ),
     sa.ForeignKeyConstraint(['script_id'], ['scripts.script_id'], ),

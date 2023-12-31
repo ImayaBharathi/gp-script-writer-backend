@@ -49,7 +49,11 @@ def create_user(db: Session, user: UserCreate):
     # Check if user with the same email exists
     try:
         existing_user = db.query(users_db_models.User).filter(users_db_models.User.email == user.email).first()
-        return {"message": "User with this email already exists"}
+        print(existing_user)
+        if existing_user:
+            return {"message": "User with this email already exists"}
+        else:
+            pass
     except NoResultFound:
         pass
     

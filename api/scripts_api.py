@@ -7,11 +7,10 @@ from sqlalchemy.orm import Session
 from db_models.db_setup import get_db
 from datetime import datetime
 import uuid
-
-# from . import crud_scripts, database, schemas, auth
+from typing import List
 
 ##### Pydantic Imports
-from pydantic_schemas.script_pydantic_models import Script, ScriptCreate
+from pydantic_schemas.script_pydantic_models import Script, ScriptCreate, ScriptNote, ScriptNoteCreate
 from pydantic_schemas.user_pydantic_models import UserCreate
 
 ##### Utils Imports
@@ -66,3 +65,43 @@ def delete_script(
         raise HTTPException(status_code=404, detail="Script not found")
     return {"message": "Script deleted successfully"}
 
+############# For script notes
+@router.post("/script_notes/", response_model=ScriptNote, tags=["Script Notes"])
+def create_script_note(script_note: ScriptNoteCreate, 
+                       db: Session = Depends(get_db),
+                       current_user: UserCreate = Depends(user_utils.get_current_user)):
+    return script_utils.create_script_note(db=db, script_note=script_note)
+
+# Get all ScriptNotes for a Script
+@router.get("/script_notes/{script_id}", response_model=List[ScriptNote], tags=["Script Notes"])
+def get_script_note(script_id: uuid.UUID, 
+                     db: Session = Depends(get_db),
+                     current_user: UserCreate = Depends(user_utils.get_current_user)):
+    return script_utils.get_script_notes_by_script_id(db=db, script_id=script_id)
+
+# Update ScriptNote
+@router.put("/script_notes/{note_id}", response_model=ScriptNote, tags=["Script Notes"])
+def update_script_note(note_id: int, note_content: str, 
+                       db: Session = Depends(get_db),
+                       current_user: UserCreate = Depends(user_utils.get_current_user)):
+    db_note = script_utils.get_script_note_by_id(db=db, note_id=note_id)
+    if db_note is None:
+        raise HTTPException(status_code=404, detail="ScriptNote not found")
+    return script_utils.update_script_note(db=db, db_note=db_note, note_content=note_content)
+
+# Delete ScriptNote
+@router.delete("/script_notes/{note_id}", tags=["Script Notes"])
+def delete_script_note(note_id: int, 
+                       db: Session = Depends(get_db), 
+                       current_user: UserCreate = Depends(user_utils.get_current_user)):
+    db_note = script_utils.get_script_note_by_id(db=db, note_id=note_id)
+    if db_note is None:
+        raise HTTPException(status_code=404, detail="ScriptNote not found")
+    return script_utils.delete_script_note(db=db, db_note=db_note)
+
+# # Get all ScriptNotes for a Script
+# @router.get("/script_notes/{script_id}/notes", response_model=List[ScriptNote], tags=["Script Notes"])
+# def get_script_notes(script_id: uuid.UUID, 
+#                      db: Session = Depends(get_db),
+#                      current_user: UserCreate = Depends(user_utils.get_current_user)):
+#     return script_utils.get_script_notes_by_script_id(db=db, script_id=script_id)

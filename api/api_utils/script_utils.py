@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from db_models.models import scripts_db_models
+from pydantic_schemas.script_pydantic_models import ScriptNoteCreate, ScriptNote
+from typing import List
 import uuid
 
 def create_script(
@@ -56,3 +58,37 @@ def delete_script(db: Session, script_id: int):
         db.commit()
         return True
     return False
+
+
+
+def create_script_note(db: Session, script_note: ScriptNoteCreate):
+    db_script_note = scripts_db_models.ScriptNotes(**script_note.model_dump())
+    db.add(db_script_note)
+    db.commit()
+    db.refresh(db_script_note)
+    return db_script_note
+
+# Get all ScriptNotes for a Script
+def get_script_notes_by_script_id(db: Session, script_id: int):
+    return db.query(scripts_db_models.ScriptNotes).filter(scripts_db_models.ScriptNotes.script_id == script_id).all()
+
+# Get ScriptNote by ID
+def get_script_note_by_id(db: Session, note_id: int):
+    return db.query(scripts_db_models.ScriptNotes).filter(scripts_db_models.ScriptNotes.note_id == note_id).first()
+
+# Update ScriptNote
+def update_script_note(db: Session, db_note: scripts_db_models.ScriptNotes, note_content: str):
+    db_note.note_content = note_content
+    db.commit()
+    db.refresh(db_note)
+    return db_note
+
+# Delete ScriptNote
+def delete_script_note(db: Session, db_note: scripts_db_models.ScriptNotes):
+    db.delete(db_note)
+    db.commit()
+    return {"message": "ScriptNote deleted successfully"}
+
+# Get all ScriptNotes for a Script
+def get_script_notes_by_script_id(db: Session, script_id: str) -> List[scripts_db_models.ScriptNotes]:
+    return db.query(scripts_db_models.ScriptNotes).filter(scripts_db_models.ScriptNotes.script_id == script_id).all()

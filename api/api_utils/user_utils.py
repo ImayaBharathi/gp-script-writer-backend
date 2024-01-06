@@ -176,8 +176,8 @@ def create_user_details(db: Session, user_id: int, other_info: str):
         return new_user_details
 
 
-def get_user_details(db: Session, user_details_id: int):
-    return db.query(users_db_models.UserDetails).filter(users_db_models.UserDetails.user_details_id == user_details_id).first()
+def get_user_details(db: Session, user_id: int):
+    return db.query(users_db_models.UserDetails).filter(users_db_models.UserDetails.user_id == user_id).first()
 
 def update_user_details(db: Session, user_details_id: int, other_info: str):
     user_details = db.query(users_db_models.UserDetails).filter(users_db_models.UserDetails.user_details_id == user_details_id).first()

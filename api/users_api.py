@@ -1,3 +1,4 @@
+import json
 ##### Fastapi Imports
 
 from fastapi import APIRouter,Depends, FastAPI, HTTPException, status, Response
@@ -14,6 +15,9 @@ from sqlalchemy.orm import Session
 
 ##### Utils Imports
 from .api_utils import user_utils
+
+##### Logging
+from loguru import logger
 
 ##### Other Imports
 # from google.auth.transport import requests
@@ -77,28 +81,30 @@ def google_login(id_token: str):
 
 @router.post("/user-details", tags=["User Details"], response_model=UserDetails)
 def create_user_details(
-    user_id: int,
-    other_info: str,
+    other_info: dict,
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user),
 ):
-    return user_utils.create_user_details(db, user_id, other_info)
+    other_info = json.dumps(other_info)
+    return user_utils.create_user_details(db, current_user.user_id, other_info)
 
-@router.get("/user-details/{user_details_id}", tags=["User Details"], response_model=UserDetails)
+@router.get("/user-details", tags=["User Details"], response_model=UserDetails)
 def read_user_details(
-    user_details_id: int,
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user),
 ):
-    user_details = user_utils.get_user_details(db, user_details_id)
+    logger.info(current_user.user_id)
+    user_details = user_utils.get_user_details(db, current_user.user_id)
+    logger.info(user_details)
     if not user_details:
         raise HTTPException(status_code=404, detail="UserDetails not found")
+    user_details.other_info  = json.loads(user_details.other_info)
     return user_details
 
 @router.put("/user-details/{user_details_id}", tags=["User Details"], response_model=UserDetails)
 def update_user_details(
     user_details_id: int,
-    other_info: str,
+    other_info: dict,
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user),
 ):

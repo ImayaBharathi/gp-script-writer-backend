@@ -65,3 +65,15 @@ class SharedScripts(Timestamp, Base):
     script = relationship("Script", backref="shared_scripts")
     shared_by_user = relationship("User", foreign_keys=[shared_by_user_id])
 
+class ScriptNotes(Timestamp,Base):
+    __tablename__ = "script_notes"
+
+    note_id = Column(Integer, primary_key=True, index=True)
+    script_id = Column(UUID(as_uuid=True), ForeignKey('scripts.script_id'))
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
+    note_content = Column(Text)
+
+    # # Relationships
+    # script = relationship("Script", backref="script_notes")
+    # # _script = relationship("Script", back_populates="notes")
+    # user = relationship("User", back_populates="script_notes")

@@ -25,7 +25,7 @@ class Token(BaseModel):
 
 class UserDetailsBase(BaseModel):
     user_id: uuid.UUID
-    other_info: str
+    other_info: dict
 
 class UserDetailsCreate(UserDetailsBase):
     pass

@@ -2,3 +2,9 @@
   "email": "user@example.com",
   "password": "string"
 }
+
+
+
+Client ID : 997620213023-iup3a0pbqe5a6brf968ejpu6rr8g3l19.apps.googleusercontent.com
+
+Client secret : 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

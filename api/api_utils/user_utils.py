@@ -10,6 +10,7 @@ from db_models.db_setup import get_db
 from pydantic_schemas.user_pydantic_models import UserCreate
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+import requests
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # from google.auth.transport import requests
@@ -140,8 +141,8 @@ def refresh_access_token(db:Session,refresh_token: str) -> str:
     }
 
 
-GOOGLE_CLIENT_ID = "your-google-client-id"  # Replace with your Google Client ID
-SECRET_KEY = "your-secret-key"  # Replace with a secure secret key
+GOOGLE_CLIENT_ID = "997620213023-iup3a0pbqe5a6brf968ejpu6rr8g3l19.apps.googleusercontent.com"  # Replace with your Google Client ID
+GOOGLE_CLIENT_SECRET = "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"  # Replace with a secure secret key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -194,3 +195,69 @@ def delete_user_details(db: Session, user_details_id: int):
         db.commit()
         return True
     return False
+
+
+def get_google_login_url():
+    # Construct the URL for redirecting users to Google's OAuth page
+    scope = "openid email profile https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/contacts"  # Define necessary scopes based on your requirements
+    redirect_uri = "http://localhost:8000/auth/google/callback"  # Your callback URL
+    auth_endpoint = "https://accounts.google.com/o/oauth2/auth"
+
+    params = {
+        "response_type": "code",
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": redirect_uri,
+        "scope": scope,
+        "access_type": "offline",
+        "prompt": "consent"  # Force consent screen for new permissions
+    }
+
+    url = f"{auth_endpoint}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+    return url
+
+def exchange_code_for_user_info(code):
+    # Exchange the received authorization code for user information
+    token_endpoint = "https://oauth2.googleapis.com/token"
+
+    payload = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": "http://localhost:8000/auth/google/callback",
+        "grant_type": "authorization_code"
+    }
+
+    response = requests.post(token_endpoint, data=payload)
+    if response.status_code == 200:
+        user_info = response.json()
+        return user_info
+    else:
+        raise Exception("Failed to exchange code for user info")
+    
+def get_or_create_user(db: Session, google_user_info: dict):
+    # Check if the user already exists based on the Google ID
+    existing_google_user = db.query(users_db_models.GoogleAuth).filter_by(google_id=google_user_info['sub']).first()
+    
+    if existing_google_user:
+        # User already exists, return the associated user
+        return existing_google_user.user
+    
+    # User doesn't exist, create a new user
+
+    new_user = users_db_models.User(
+        username=google_user_info.get('name', 'Google User'),
+        email=google_user_info.get('email', 'example@example.com')
+        # Add other fields as required
+    )
+    db.add(new_user)
+    db.commit()
+    
+    # Create GoogleAuth entry for the user
+    new_google_user = users_db_models.GoogleAuth(
+        google_unique_id_for_user=google_user_info['sub'],
+        user=new_user
+    )
+    db.add(new_google_user)
+    db.commit()
+    
+    return new_user

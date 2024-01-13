@@ -50,35 +50,6 @@ def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
     tokens = user_utils.refresh_access_token(db,refresh_token)
     return tokens
 
-@router.post("/google-login", tags=["Users"], response_model=Token)
-def google_login(id_token: str):
-    try:
-        return {
-            "access_token": "working on it",
-            "refresh_token": "working on it",
-            "token_type": "bearer"
-        }
-        # # Verify Google ID token
-        # client_id = "your-google-client-id"  # Replace with your Google Client ID
-        # idinfo = id_token.verify_oauth2_token(id_token, requests.Request(), client_id)
-
-        # # Extract user information from the verified token
-        # email = idinfo['email']
-        # # Check if user with this email exists in your system, if not create one
-
-        # # Generate access and refresh tokens for the user
-        # access_token = user_utils.create_access_token(data={"sub": email}, expires_delta=30)  # Implement this function
-        # refresh_token = user_utils.create_access_token(data={"sub": email}, expires_delta=30)  # Implement this function
-
-        # return {
-        #     "access_token": access_token,
-        #     "refresh_token": refresh_token,
-        #     "token_type": "bearer"
-        # }
-    except ValueError:
-        raise HTTPException(status_code=401, detail="Invalid Google ID token")
-    
-
 @router.post("/user-details", tags=["User Details"], response_model=UserDetails)
 def create_user_details(
     other_info: dict,
@@ -124,9 +95,36 @@ def delete_user_details(
         raise HTTPException(status_code=404, detail="UserDetails not found")
     return {"message": "UserDetails deleted successfully"}
 
+
+
+
+######## For SSO Logins
+
+@router.get("/auth/google/login", tags=["Users"])
+async def google_login():
+    # Redirect the user to Google's OAuth page to initiate the login process
+    redirect_url = user_utils.get_google_login_url()
+    return {"url": redirect_url}
+
+@router.get("/auth/google/callback", tags=["Users"], response_model=Token)
+async def google_callback(code: str, db: Session = Depends(get_db)):
+    try:
+        # Exchange the received authorization code for user information
+        google_user_info = user_utils.exchange_code_for_user_info(code)
+        
+        # Process the user information and store/update in the database
+        user = user_utils.get_or_create_user(db, google_user_info)
+        
+        # Generate access token and refresh token for the user
+        tokens = user_utils.create_tokens_for_user(user)
+        
+        return tokens
+    
+    except Exception as e:
+        # Handle exceptions appropriately
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 ######## Things to write
 # 1) Forgot Password #### needs azure cloud to send emails for 
 # 2) Reset Password  #### needs azure cloud to send emails for 
-
-
-

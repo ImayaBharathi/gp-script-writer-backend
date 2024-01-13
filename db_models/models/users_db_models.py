@@ -26,6 +26,7 @@ class GoogleAuth(Timestamp, Base):
 
     google_id = Column(UUID(as_uuid=True), primary_key=True, index=True, default= uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
+    google_unique_id_for_user = Column(UUID(as_uuid=True))
     other_google_data = Column(String)
 
     user = relationship("User", backref="google_auth")

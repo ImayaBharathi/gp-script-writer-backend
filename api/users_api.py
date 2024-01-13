@@ -111,10 +111,10 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
     try:
         # Exchange the received authorization code for user information
         google_user_info = user_utils.exchange_code_for_user_info(code)
-        
+
         # Process the user information and store/update in the database
         user = user_utils.get_or_create_user(db, google_user_info)
-        
+
         # Generate access token and refresh token for the user
         tokens = user_utils.create_tokens_for_user(user)
         

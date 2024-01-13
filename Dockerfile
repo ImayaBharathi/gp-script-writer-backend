@@ -32,3 +32,8 @@ EXPOSE 8000
 
 # Command to run the application
 CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# docker build -t gpbackenddev.azurecr.io/gp-backend-dev:latest .
+# az container create --resource-group gp --name mycontainer --image mcr.microsoft.com/azuredocs/aci-helloworld --dns-name-label aci-demo --ports 80
+
+# az container create --resource-group gp --name gp-backend-container --image gpbackenddev.azurecr.io/gp-backend-dev:latest --dns-name-label gp-backend --ports 8000

@@ -11,13 +11,19 @@ from pydantic_schemas.user_pydantic_models import UserCreate
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import requests
+import json
+import jwt as jjt
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+import requests
+
 
 # from google.auth.transport import requests
 # from google.oauth2 import id_token
 
 from fastapi import Depends, HTTPException
 from typing import Optional
+from loguru import logger
 
 
 SECRET_KEY = "c3e9b330d915e0c04d8fa1cb2168366b9f078aa463388b998b3d1cf3a55b1d1e10"  # Replace with a secure secret key
@@ -215,6 +221,12 @@ def get_google_login_url():
     url = f"{auth_endpoint}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
     return url
 
+def get_user_email(access_token):
+    r = requests.get(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            params={'access_token': access_token})
+    return r.json()
+
 def exchange_code_for_user_info(code):
     # Exchange the received authorization code for user information
     token_endpoint = "https://oauth2.googleapis.com/token"
@@ -230,32 +242,41 @@ def exchange_code_for_user_info(code):
     response = requests.post(token_endpoint, data=payload)
     if response.status_code == 200:
         user_info = response.json()
+        logger.info(user_info.get("id_token", "false"))
+        
+        # Decode the ID token using the public keys for verification
+        user_details = get_user_email(user_info.get("access_token", "false"))
+        user_info["name"] = user_details.get("name", "")
+        user_info["email"] = user_details.get("email","")
+        user_info["other_user_details"] = user_details
+        logger.info(user_info)
         return user_info
     else:
         raise Exception("Failed to exchange code for user info")
     
 def get_or_create_user(db: Session, google_user_info: dict):
     # Check if the user already exists based on the Google ID
-    existing_google_user = db.query(users_db_models.GoogleAuth).filter_by(google_id=google_user_info['sub']).first()
+    logger.info(google_user_info['id_token'])
+    # existing_google_user = db.query(users_db_models.GoogleAuth).filter_by(google_unique_id_for_user=google_user_info['id_token']).first()
+    existing_google_user = db.query(users_db_models.User).filter_by(email=google_user_info['email']).first()
     
     if existing_google_user:
         # User already exists, return the associated user
-        return existing_google_user.user
+        return existing_google_user
     
     # User doesn't exist, create a new user
-
     new_user = users_db_models.User(
         username=google_user_info.get('name', 'Google User'),
         email=google_user_info.get('email', 'example@example.com')
-        # Add other fields as required
     )
     db.add(new_user)
     db.commit()
     
     # Create GoogleAuth entry for the user
     new_google_user = users_db_models.GoogleAuth(
-        google_unique_id_for_user=google_user_info['sub'],
-        user=new_user
+        google_unique_id_for_user=google_user_info['id_token'],
+        user_id=new_user.user_id,
+        other_google_data = json.dumps(google_user_info)
     )
     db.add(new_google_user)
     db.commit()

@@ -56,8 +56,21 @@ def create_user_details(
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user),
 ):
+    logger.info(other_info)
     other_info = json.dumps(other_info)
-    return user_utils.create_user_details(db, current_user.user_id, other_info)
+    response = user_utils.create_user_details(db, current_user.user_id, other_info)
+    logger.info("------")
+    logger.info(response)
+    response.other_info = json.loads(response.other_info)
+    return response
+
+@router.get("/user/me", tags=["Users"])
+def get_user_id_based_on_access_token(
+    db: Session = Depends(get_db),
+    current_user: UserCreate = Depends(user_utils.get_current_user),
+):
+    return current_user.user_id
+
 
 @router.get("/user-details", tags=["User Details"], response_model=UserDetails)
 def read_user_details(
@@ -94,9 +107,6 @@ def delete_user_details(
     if not deleted:
         raise HTTPException(status_code=404, detail="UserDetails not found")
     return {"message": "UserDetails deleted successfully"}
-
-
-
 
 ######## For SSO Logins
 

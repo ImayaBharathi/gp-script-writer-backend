@@ -29,6 +29,9 @@ def create_script(
 def get_script(db: Session, script_id: int):
     return db.query(scripts_db_models.Script).filter(scripts_db_models.Script.script_id == script_id).first()
 
+def get_all_script(db: Session):
+    return db.query(scripts_db_models.Script).all()
+
 def update_script(
     db: Session,
     script_id: int,

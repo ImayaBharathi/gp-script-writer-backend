@@ -12,7 +12,6 @@ from pydantic_schemas.user_pydantic_models import UserCreate
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import requests
 import json
-import jwt as jjt
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 import requests

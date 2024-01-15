@@ -17,6 +17,8 @@ from pydantic_schemas.user_pydantic_models import UserCreate
 from .api_utils import script_utils
 from .api_utils import user_utils
 
+from loguru import logger
+
 router = APIRouter()
 
 @router.post("/scripts", tags=["Scripts"], response_model=Script)
@@ -31,14 +33,24 @@ def create_script(
     return new_script
 
 @router.get("/scripts/{script_id}", tags=["Scripts"], response_model=Script)
-def read_script(
-    script_id: int,
+def get_script_from_script_id(
+    script_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user)
 ):
     script = script_utils.get_script(db, script_id)
     if not script:
         raise HTTPException(status_code=404, detail="Script not found")
+    return script
+
+@router.get("/scripts/all/", tags=["Scripts"], response_model=List[Script])
+def return_all_scripts(
+    db: Session = Depends(get_db),
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    script = script_utils.get_all_script(db)
+    if not script:
+        raise HTTPException(status_code=404, detail="No scripts found")
     return script
 
 @router.put("/scripts/{script_id}", tags=["Scripts"], response_model=Script)

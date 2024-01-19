@@ -1,10 +1,13 @@
 import uuid
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 from db_models.models import scripts_db_models
 from azure.storage.blob import BlobServiceClient, ContentSettings
 
 connection_string = "DefaultEndpointsProtocol=https;AccountName=gpuicomponents;AccountKey=PrW5sG4NaCAHl6N4XUVX04uPxAbcGyEjDSVbs8HJlYLDmk+jG0f6LmQ/64tLMwKHcov0Dd/NdYlW+AStGDOoaw==;EndpointSuffix=core.windows.net"
+
+def check_if_script_id_exist(db: Session,script_id: uuid.UUID):
+    return db.query(scripts_db_models.Script).filter(scripts_db_models.Script.script_id == script_id).all()
 
 def create_script_version(
     db: Session,
@@ -71,7 +74,7 @@ def delete_script_version(db: Session, version_id: uuid.UUID):
 def get_all_script_versions(db: Session, script_id: uuid.UUID):
     return (db.query(scripts_db_models.ScriptVersion)
             .filter(scripts_db_models.ScriptVersion.script_id == script_id)
-            .order_by(desc(scripts_db_models.ScriptVersion.created_at)) 
+            .order_by(asc(scripts_db_models.ScriptVersion.created_at)) 
             .limit(10)
             .all())
 

@@ -29,8 +29,8 @@ def create_script(
 def get_script(db: Session, script_id: int):
     return db.query(scripts_db_models.Script).filter(scripts_db_models.Script.script_id == script_id).first()
 
-def get_all_script(db: Session):
-    return db.query(scripts_db_models.Script).all()
+def get_all_script(db: Session, user_id: int):
+    return db.query(scripts_db_models.Script).filter(scripts_db_models.Script.user_id == user_id).all()
 
 def update_script(
     db: Session,
@@ -53,6 +53,8 @@ def update_script(
         db.commit()
         db.refresh(script)
         return script
+    else:
+        return False
 
 def delete_script(db: Session, script_id: int):
     script = db.query(scripts_db_models.Script).filter(scripts_db_models.Script.script_id == script_id).first()
@@ -90,7 +92,7 @@ def update_script_note(db: Session, db_note: scripts_db_models.ScriptNotes, note
 def delete_script_note(db: Session, db_note: scripts_db_models.ScriptNotes):
     db.delete(db_note)
     db.commit()
-    return {"message": "ScriptNote deleted successfully"}
+    return True
 
 # Get all ScriptNotes for a Script
 def get_script_notes_by_script_id(db: Session, script_id: str) -> List[scripts_db_models.ScriptNotes]:

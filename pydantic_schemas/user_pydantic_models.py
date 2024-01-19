@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-
+from typing import List, Union
 import uuid
 
 class UserCreate(BaseModel):
@@ -35,3 +35,4 @@ class UserDetails(UserDetailsBase):
 
     class Config:
         from_attributes = True
+

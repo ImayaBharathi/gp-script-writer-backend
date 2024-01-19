@@ -129,7 +129,8 @@ def get_user_from_email(db: Session,email: str) -> users_db_models.User:
 
 def refresh_access_token(db:Session,refresh_token: str) -> str:
     if not verify_refresh_token(refresh_token):
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        return False
+        # raise HTTPException(status_code=401, detail="Invalid refresh token")
 
     email = get_email_from_token(refresh_token)
     # Assuming you have the user's email, fetch user from the database
@@ -188,7 +189,9 @@ def get_user_details(db: Session, user_id: int):
 def update_user_details(db: Session, user_details_id: int, other_info: str):
     user_details = db.query(users_db_models.UserDetails).filter(users_db_models.UserDetails.user_details_id == user_details_id).first()
     if user_details:
-        user_details.other_info = other_info
+        json_val = json.loads(user_details.other_info)
+        json_val.update(json.loads(other_info))
+        user_details.other_info = json.dumps(json_val)
         db.commit()
         db.refresh(user_details)
         return user_details

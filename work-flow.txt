@@ -4,7 +4,18 @@
 }
 
 
+{
+  "email": "a@example.cm",
+  "password": "string"
+}
 
 Client ID : 997620213023-iup3a0pbqe5a6brf968ejpu6rr8g3l19.apps.googleusercontent.com
 
 Client secret : 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
+
+
+a@example.cm
+user id: dd3c3d4b-bcd9-407f-8154-2f92048cd35b
+user details id: 480571f0-c2d4-4d1f-9a47-ceb886e97f7f
+script id: 63602016-42cf-4020-be7a-19471f1c7aec
+version id : d2340d83-9beb-4851-8f98-583acce8fef4

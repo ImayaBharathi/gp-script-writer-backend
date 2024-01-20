@@ -72,7 +72,7 @@ def return_all_scripts(
         scripts.append(scpt_)
     success = True
     message = "Scripts Fetched"
-    return CustomResponse(success=success, message=message, data=[scripts])
+    return CustomResponse(success=success, message=message, data=scripts)
     # return script
 
 @router.put("/scripts/{script_id}", tags=["Scripts"], response_model=CustomResponse)
@@ -138,7 +138,7 @@ def get_script_note(script_id: uuid.UUID,
         script_notes_.append(scpt_)
     success = True
     message = "Script Notes fetched"
-    return CustomResponse(success=success, message=message, data=[script_notes_])
+    return CustomResponse(success=success, message=message, data=script_notes_)
     # return 
 
 # Update ScriptNote

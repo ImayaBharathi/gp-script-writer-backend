@@ -112,5 +112,5 @@ def get_all_script_versions(
         script_versions_.append(scpt_)
     success = True
     message = "Script Versions Fetched"
-    return CustomResponse(success=success, message=message, data=[script_versions_])
+    return CustomResponse(success=success, message=message, data=script_versions_)
     # return {"versions": list(script_versions)}

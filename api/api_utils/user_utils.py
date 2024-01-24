@@ -23,6 +23,7 @@ import requests
 from fastapi import Depends, HTTPException
 from typing import Optional
 from loguru import logger
+# from logging_module import log_to_azure_storage
 
 
 SECRET_KEY = "c3e9b330d915e0c04d8fa1cb2168366b9f078aa463388b998b3d1cf3a55b1d1e10"  # Replace with a secure secret key
@@ -208,7 +209,8 @@ def delete_user_details(db: Session, user_details_id: int):
 def get_google_login_url():
     # Construct the URL for redirecting users to Google's OAuth page
     scope = "openid email profile https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/contacts"  # Define necessary scopes based on your requirements
-    redirect_uri = "http://localhost:8000/auth/google/callback"  # Your callback URL
+    # redirect_uri = "http://localhost:8000/auth/google/callback"  # Your callback URL
+    redirect_uri = "http://gp-backend.eastus.azurecontainer.io:8000/auth/google/callback"
     auth_endpoint = "https://accounts.google.com/o/oauth2/auth"
 
     params = {
@@ -251,7 +253,7 @@ def exchange_code_for_user_info(code):
         user_info["name"] = user_details.get("name", "")
         user_info["email"] = user_details.get("email","")
         user_info["other_user_details"] = user_details
-        logger.info(user_info)
+        # logger.info(user_info)
         return user_info
     else:
         raise Exception("Failed to exchange code for user info")
@@ -282,5 +284,4 @@ def get_or_create_user(db: Session, google_user_info: dict):
     )
     db.add(new_google_user)
     db.commit()
-    
     return new_user

@@ -19,6 +19,7 @@ from .api_utils import user_utils
 
 ##### Logging
 from loguru import logger
+# from logging_module import log_to_azure_storage
 
 import uuid
 
@@ -33,6 +34,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 @router.post("/register/", tags=["Users"], response_model=CustomResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     try:
+        # log_to_azure_storage(user.email, "User Created", True)
         tokens_or_message = user_utils.create_user(db, user)
         if "access_token" in tokens_or_message and "refresh_token" in tokens_or_message:
             success = True
@@ -202,10 +204,12 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
     try:
         # Exchange the received authorization code for user information
         google_user_info = user_utils.exchange_code_for_user_info(code)
+        logger.info(google_user_info)
+        # log_to_azure_storage.info("")
 
         # Process the user information and store/update in the database
         user = user_utils.get_or_create_user(db, google_user_info)
-
+        logger.info(user)
         # Generate access token and refresh token for the user
         tokens = user_utils.create_tokens_for_user(user)
         success = True

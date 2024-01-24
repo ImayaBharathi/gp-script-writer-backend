@@ -19,3 +19,24 @@ user id: dd3c3d4b-bcd9-407f-8154-2f92048cd35b
 user details id: 480571f0-c2d4-4d1f-9a47-ceb886e97f7f
 script id: 63602016-42cf-4020-be7a-19471f1c7aec
 version id : d2340d83-9beb-4851-8f98-583acce8fef4
+
+
+labels
+
+1. Scene Heading 
+2. Action
+3. Character
+4. Paranthetical
+5. Dialogue
+6. Transition
+7. Shot
+
+
+
+1. INT or EXT , Scene Heading Should be ALL caps
+2. without any css ios action
+3. Center Algined, Should be ALL Caps (first center aligned in a scene will always be character)
+4. Paranthetical will be center aligned and always within ()
+5. Dialogue Center Algined, either it will be after a character or will be after a Paranthetical (center aligned for sure)
+6. Right aligned, always end with a colon
+7. Left aligned, colon will always be there, ALL Caps, even when colon not there INT or EXT will not be there

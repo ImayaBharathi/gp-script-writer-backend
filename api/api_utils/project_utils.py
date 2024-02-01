@@ -52,7 +52,6 @@ def get_projects_with_scripts(db: Session, user_id: uuid.UUID):
 
     response_data = []
     for project in projects:
-        print(project)
         project_data = vars(project)
         project_data.pop("_sa_instance_state")
 
@@ -65,7 +64,6 @@ def get_projects_with_scripts(db: Session, user_id: uuid.UUID):
             scripts_data_list.append(scripts_data)
         project_data["scripts"] = scripts_data_list
         response_data.append(project_data)
-    print(response_data)
     return response_data
 
 

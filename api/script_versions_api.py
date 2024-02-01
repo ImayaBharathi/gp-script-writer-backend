@@ -114,16 +114,3 @@ def get_all_script_versions(
     message = "Script Versions Fetched"
     return CustomResponse(success=success, message=message, data=script_versions_)
     # return {"versions": list(script_versions)}
-
-@router.get("/versions-draft", tags=["Sample"], response_model=CustomResponse)
-def get_script_versions_draft():
-    a = [(0,"<p>INT. CAR.--NIGHT</p>"),
-         (1,"<p>.A COUPLE DRIVING A CAR FROM PONDY TO , IN CAR RADIO SONG PLAYS</p>"),
-         (0,"<p>In radio song ends and rj speaks to a caller&nbsp;</p>")]
-    return CustomResponse(success=True, message="Script Versions Fetched", data=a)
-
-
-@router.get("/versions-labels", tags=["Sample"], response_model=CustomResponse)
-def get_labels():
-    a = {0: "Scene Heading", 1 : "Action", 2:"Character", 3: "Paranthetical", 4:"Dialogue", 5:"Transition", 6:"Shot"}
-    return CustomResponse(success=True, message="Script Versions Fetched", data=[a])

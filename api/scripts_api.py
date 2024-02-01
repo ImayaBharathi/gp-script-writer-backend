@@ -17,6 +17,7 @@ from pydantic_schemas.generic_pydantic_models import CustomResponse
 ##### Utils Imports
 from .api_utils import script_utils
 from .api_utils import user_utils
+from .api_utils import project_utils
 
 from loguru import logger
 
@@ -30,9 +31,16 @@ def create_script(
     current_user: UserCreate = Depends(user_utils.get_current_user),
 ):
     last_modified_at = datetime.utcnow()
-    new_script = script_utils.create_script(db, scripts.title, scripts.genre, scripts.user_id, scripts.logline,last_modified_at)
+    new_project = project_utils.create_project(db, user_id=current_user.user_id)
+    new_script = script_utils.create_script(db, scripts.title, scripts.genre, current_user.user_id, scripts.logline,last_modified_at)
+    
     new_script = vars(new_script)
+    print(new_script)
     new_script.pop('_sa_instance_state')
+
+    # Create a new project script association
+    project_utils.create_project_script(db, project_id=new_project.project_id, script_id=new_script.get("script_id"))
+
     success = True
     message = "Script Created"
     return CustomResponse(success=success, message=message, data=[new_script])

@@ -1,0 +1,2 @@
+when adding a new model to db_models folder
+import model in evv.py in alembic-migration folder

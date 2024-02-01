@@ -7,7 +7,7 @@ class ScriptBase(BaseModel):
     title: str
     genre: str
     logline: str
-    user_id: uuid.UUID
+    # user_id: uuid.UUID
 
 class ScriptCreate(ScriptBase):
     pass

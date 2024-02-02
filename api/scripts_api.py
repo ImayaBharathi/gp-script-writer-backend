@@ -181,7 +181,6 @@ def delete_script_note(note_id: int,
         message = "Script Notes deleted"
         return CustomResponse(success=success, message=message, data=[])
 
-
 # # Get all ScriptNotes for a Script
 # @router.get("/script_notes/{script_id}/notes", response_model=List[ScriptNote], tags=["Script Notes"])
 # def get_script_notes(script_id: uuid.UUID, 

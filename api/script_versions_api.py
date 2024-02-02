@@ -1,6 +1,7 @@
 
 ##### Fastapi Imports
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+
 
 ##### Database Models & SQLAlchemy Imports
 from db_models.db_setup import get_db
@@ -18,6 +19,7 @@ from .api_utils import script_version_utils
 from .api_utils import user_utils
 
 # from . import crud_script_versions, database, schemas, auth
+import json
 
 router = APIRouter()
 
@@ -114,3 +116,39 @@ def get_all_script_versions(
     message = "Script Versions Fetched"
     return CustomResponse(success=success, message=message, data=script_versions_)
     # return {"versions": list(script_versions)}
+
+
+## Capitalize Strings
+@router.post("/upper_case/", tags=["Script Versions"], response_model=CustomResponse)
+def make_data_uppercase(caps_string: str, 
+                       db: Session = Depends(get_db),
+                       current_user: UserCreate = Depends(user_utils.get_current_user)):
+    success = True
+    message = "Upper Case applied"
+    return CustomResponse(success=success, message=message, data=[{"capped_string": caps_string.upper()}])
+
+@router.websocket("/ws_upper_case/")
+async def websocket_upper_case(
+    websocket: WebSocket,
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    try:
+        while True:
+            data = await websocket.receive_text()
+
+            capped_string = data.upper()
+            
+            # Create a CustomResponse object
+            custom_response = CustomResponse(success=True, message="Upper Case applied", data=[{"capped_string": capped_string}])
+            
+            # Convert CustomResponse to JSON string
+            json_response = json.dumps(custom_response.dict())
+            
+            # Send JSON response through WebSocket
+            await websocket.send_text(json_response)
+
+    except WebSocketDisconnect:
+        # Handle exceptions and send custom error response
+        error_response = CustomResponse(success=False, message="Internal Server Error", data=[])
+        json_error_response = json.dumps(error_response.model_dump())
+        await websocket.send_text(json_error_response)

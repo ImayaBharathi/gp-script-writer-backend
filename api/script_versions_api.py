@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 ##### Pydantic Imports
-from pydantic_schemas.script_version_pydantic_models import ScriptVersionCreate, ScriptVersion, ScriptVersionsListResponse
+from pydantic_schemas.script_version_pydantic_models import ScriptVersionCreate, ScriptVersion, ScriptDraftCreate
 from pydantic_schemas.user_pydantic_models import UserCreate
 from pydantic_schemas.generic_pydantic_models import CustomResponse
 
@@ -30,7 +30,7 @@ def create_script_version(
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user)
 ):
-    script_exist = script_version_utils.check_if_script_id_exist(db, script_details.script_id)
+    script_exist = script_version_utils.check_if_script_id_exist(db, script_details.script_id, current_user.user_id)
     if script_exist:
         new_script_version = script_version_utils.create_script_version(
             db, script_details.script_id,
@@ -118,6 +118,88 @@ def get_all_script_versions(
     # return {"versions": list(script_versions)}
 
 
+
+################## DRAFT
+################## DRAFT
+################## DRAFT
+@router.post("/script-drafts", tags=["Script Drafts"], response_model=CustomResponse)
+def create_script_draft(
+    script_details: ScriptDraftCreate,
+    db: Session = Depends(get_db),
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    new_script_draft = script_version_utils.create_script_draft(
+        db,
+        script_details.script_id,
+        script_details.content,
+        current_user.user_id,
+        script_details.remarks
+    )
+    new_script_draft = vars(new_script_draft)
+    new_script_draft.pop('_sa_instance_state')
+    success = True
+    message = "Script Draft Created"
+    return CustomResponse(success=success, message=message, data=[new_script_draft])
+
+@router.get("/script-drafts/{draft_id}", tags=["Script Drafts"], response_model=CustomResponse)
+def read_script_draft(
+    draft_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    script_draft = script_version_utils.get_script_draft(db, draft_id)
+    if not script_draft:
+        return CustomResponse(success=False, message="Script draft not found", data=[])
+    script_draft = vars(script_draft)
+    script_draft.pop('_sa_instance_state')
+    success = True
+    message = "Script Draft fetched"
+    return CustomResponse(success=success, message=message, data=[script_draft])
+
+@router.put("/script-drafts/{draft_id}", tags=["Script Drafts"], response_model=CustomResponse)
+def update_script_draft(
+    draft_id: uuid.UUID,
+    script_details: ScriptDraftCreate,
+    db: Session = Depends(get_db),
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    updated_script_draft = script_version_utils.update_script_draft(
+        db,
+        draft_id,
+        script_details.script_id,
+        script_details.content,
+        current_user.user_id,
+        script_details.remarks
+    )
+    if not updated_script_draft:
+        return CustomResponse(success="False", message="Draft Not found", data=[])
+    updated_script_draft = vars(updated_script_draft)
+    updated_script_draft.pop('_sa_instance_state')
+    success = True
+    message = "Script Draft updated"
+    return CustomResponse(success=success, message=message, data=[updated_script_draft])
+
+@router.delete("/script-drafts/{draft_id}", tags=["Script Drafts"], response_model=CustomResponse)
+def delete_script_draft(
+    draft_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    deleted = script_version_utils.delete_script_draft(db, draft_id)
+    if not deleted:
+        return CustomResponse(success=False, message="Script draft not found", data=[])
+    success = True
+    message = "Script Draft deleted"
+    return CustomResponse(success=success, message=message, data=[])
+
+
+
+
+
+
+
+
+# ----------------
 ## Capitalize Strings
 @router.post("/upper_case/", tags=["Script Versions"], response_model=CustomResponse)
 def make_data_uppercase(caps_string: str, 
@@ -152,3 +234,4 @@ async def websocket_upper_case(
         error_response = CustomResponse(success=False, message="Internal Server Error", data=[])
         json_error_response = json.dumps(error_response.model_dump())
         await websocket.send_text(json_error_response)
+

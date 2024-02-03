@@ -12,6 +12,7 @@ from pydantic_schemas.user_pydantic_models import UserCreate
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import requests
 import json
+import uuid
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 import requests
@@ -102,6 +103,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             raise HTTPException(status_code=401, detail="Invalid token")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+    # Check if token is blacklisted
+    blacklisted_token = db.query(users_db_models.BlacklistedToken).filter(users_db_models.BlacklistedToken.token == token).first()
+    if blacklisted_token:
+        raise HTTPException(status_code=401, detail="Token is from logged out user, Retry logging in again")
 
     user = db.query(users_db_models.User).filter(users_db_models.User.email == email).first()
     if user is None:
@@ -285,3 +291,13 @@ def get_or_create_user(db: Session, google_user_info: dict):
     db.add(new_google_user)
     db.commit()
     return new_user
+
+def revoke_token(db: Session, token: str, user_id: uuid.UUID) -> bool:
+    try:
+        blacklisted_token = users_db_models.BlacklistedToken(token=token, user_id=user_id)
+        db.add(blacklisted_token)
+        db.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False

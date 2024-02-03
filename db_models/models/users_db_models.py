@@ -20,6 +20,9 @@ class User(Timestamp, Base):
     password = Column(String)
     other_info = Column(String)
     is_active = Column(Boolean, default=True)
+    blacklisted_tokens = relationship("BlacklistedToken", back_populates="user")
+
+
 
 class GoogleAuth(Timestamp, Base):
     __tablename__ = 'google_auth'
@@ -60,3 +63,11 @@ class UserActivity(Timestamp,Base):
     # Relationships
     user = relationship("User", backref="user_activities")
 
+class BlacklistedToken(Base):
+    __tablename__ = "blacklisted_tokens"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default= uuid.uuid4)
+    token = Column(String, unique=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id')) 
+    user = relationship("User", back_populates="blacklisted_tokens")  
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

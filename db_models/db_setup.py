@@ -7,6 +7,11 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+import os
+
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:admin@localhost/gp_dev_db")
+
+
 # SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://backend:%s@localhost/candi_dev" % urlquote('Maha@123')
 # ASYNC_SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://backend:%s@localhost/candi_dev" % urlquote('Maha@123')
 
@@ -18,8 +23,7 @@ from sqlalchemy.orm import sessionmaker
 
 # SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:admin@localhost/gp_dev_db"
 
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:gp_sql_backend_123@gp-dev-sql-backend.postgres.database.azure.com/gp_dev_db"
-
+# SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:gp_sql_backend_123@gp-dev-sql-backend.postgres.database.azure.com/gp_dev_db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"options": "-c timezone=utc"}, future=True)
 
     

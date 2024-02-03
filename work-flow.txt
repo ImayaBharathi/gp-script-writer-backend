@@ -40,3 +40,5 @@ labels
 5. Dialogue Center Algined, either it will be after a character or will be after a Paranthetical (center aligned for sure)
 6. Right aligned, always end with a colon
 7. Left aligned, colon will always be there, ALL Caps, even when colon not there INT or EXT will not be there
+
+DATABASE_URL=postgresql+psycopg2://postgres:admin@localhost/gp_dev_db && uvicorn main:app --reload --host 0.0.0.0

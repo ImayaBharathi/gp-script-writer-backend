@@ -23,3 +23,22 @@ class ScriptVersionsListResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ScriptDraftBase(BaseModel):
+    script_id: uuid.UUID
+    content: str
+    remarks: str
+
+    class Config:
+        from_attributes = True
+
+class ScriptDraftCreate(ScriptDraftBase):
+    pass
+
+class ScriptDraft(ScriptDraftBase):
+    draft_id: uuid.UUID
+    script_file_url: str
+    
+    class Config:
+        from_attributes = True

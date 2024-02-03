@@ -226,3 +226,11 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
 ######## Things to write
 # 1) Forgot Password #### needs azure cloud to send emails for 
 # 2) Reset Password  #### needs azure cloud to send emails for 
+    
+@router.post("/logout", tags=["Users"], response_model=CustomResponse)
+async def logout(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db), 
+                 current_user: UserCreate = Depends(user_utils.get_current_user)):
+    if user_utils.revoke_token(db, token, current_user.user_id):
+        return CustomResponse(success=True, message="Logout successful", data=[])
+    else:
+        return CustomResponse(success=False, message="Invalid token or token already revoked", data=[])

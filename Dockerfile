@@ -24,6 +24,11 @@ COPY pyproject.toml poetry.lock /app/
 # Install project dependencies
 RUN poetry install --no-root --no-dev
 
+# Set the environment variable for the database URL
+ARG DATABASE_URL=postgresql+psycopg2://postgres:admin@localhost/gp_dev_db
+ENV SQLALCHEMY_DATABASE_URL=$DATABASE_URL
+
+
 # Copy the entire application code into the container
 COPY . /app/
 

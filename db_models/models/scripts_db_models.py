@@ -39,6 +39,20 @@ class ScriptVersion(Timestamp, Base):
     user = relationship("User", backref="modified_versions")
 
 
+class ScriptDraftsFromVersion(Timestamp,Base):
+    __tablename__ = 'script_drafts_from_version'
+
+    draft_id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    script_id = Column(UUID(as_uuid=True), ForeignKey('scripts.script_id'))
+    content = Column(Text)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
+    script_file_url = Column(String)
+    remarks = Column(String)
+    # Relationships
+    script = relationship("Script", backref="script_drafts")
+
+
+
 class ScriptActivity(Timestamp,Base):
     __tablename__ = 'script_activity'
 

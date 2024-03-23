@@ -68,6 +68,7 @@ def return_all_scripts(
     db: Session = Depends(get_db),
     current_user: UserCreate = Depends(user_utils.get_current_user)
 ):
+    
     script = script_utils.get_all_script(db, current_user.user_id)
     if not script:
         return CustomResponse(success=False, message="Script not found", data=[])

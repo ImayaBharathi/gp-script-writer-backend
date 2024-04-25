@@ -301,3 +301,11 @@ def revoke_token(db: Session, token: str, user_id: uuid.UUID) -> bool:
     except Exception as e:
         print(e)
         return False
+
+def get_email_by_token(db: Session, token: str):
+    # Dummy implementation, replace with actual token validation and user retrieval
+    user = db.query(users_db_models.User).filter(users_db_models.User.access_token == token).first()
+    return user.email if user else None
+
+def extract_username(email: str):
+    return email.split('@')[0]

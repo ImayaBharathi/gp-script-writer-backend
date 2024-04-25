@@ -1,5 +1,6 @@
 import json
 ##### Fastapi Imports
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import APIRouter,Depends, FastAPI, HTTPException, status, Response
 from fastapi.responses import JSONResponse
@@ -29,6 +30,18 @@ import uuid
 
 
 router = APIRouter()
+
+# app = FastAPI()
+
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=['*'],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/register/", tags=["Users"], response_model=CustomResponse)
@@ -60,6 +73,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 #     message = "Login Success"
 #     return CustomResponse(success=success, message=message, data=[data])
 
+# @app.post("/token/", tags=["Users"], response_model=Token)
 @router.post("/token/", tags=["Users"], response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = user_utils.authenticate_user(db, form_data.username, form_data.password)
@@ -234,3 +248,17 @@ async def logout(token: str = Depends(oauth2_scheme), db: Session = Depends(get_
         return CustomResponse(success=True, message="Logout successful", data=[])
     else:
         return CustomResponse(success=False, message="Invalid token or token already revoked", data=[])
+
+# @app.get("/get-username/", tags=["Users"], response_model=CustomResponse)
+@router.get("/get-username/", tags=["Users"], response_model=CustomResponse)
+async def get_username(current_user: UserCreate = Depends(user_utils.get_current_user), db: Session = Depends(get_db)):
+    
+    # email = user_utils.get_email_by_token(db, current_user)
+    # username = user_utils.extract_username(email)
+    username = current_user.__dict__.get("username", "")
+    if username:
+        return CustomResponse(success=True, message="Username retrieved successfully", data=[{"username": username}])
+    else:
+        logger.debug(vars(current_user))
+        logger.debug("current user didnt have user name, so returning `User` as default name")
+        return CustomResponse(success=False, message="Invalid token or no user found", data=[{"username": "User"}])

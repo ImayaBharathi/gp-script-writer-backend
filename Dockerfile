@@ -15,6 +15,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 # Set Portry ENV 
 ENV PATH="/root/.local/bin:$PATH"
 
+
 # Create and set the working directory
 WORKDIR /app
 
@@ -25,8 +26,9 @@ COPY pyproject.toml poetry.lock /app/
 RUN poetry install --no-root --no-dev
 
 # Set the environment variable for the database URL
-ARG DATABASE_URL=postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db
+# ARG DATABASE_URL=postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db
 ENV SQLALCHEMY_DATABASE_URL="postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db"
+ENV AZURE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=gpbackendutilites;AccountKey=fsgXYOoVlQo5lJktRw0pk3AeXrAi9P8/uCshN4oiF1LQ8IVRDQXShO7p3MdpmNTHzsLxFNVSz5Tk+ASt1aNbWA==;EndpointSuffix=core.windows.net"
 
 
 # Copy the entire application code into the container

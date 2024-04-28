@@ -1,4 +1,7 @@
 from pydantic import BaseModel
+from fastapi import UploadFile
+from typing import Optional
+
 import uuid
 from typing import Optional
 
@@ -35,6 +38,13 @@ class ScriptNote(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ScriptSubmission(BaseModel):
+    title: str
+    genre: str
+    logline: str
+    script_file: Optional[UploadFile] = None
+
 
 
 # Schema for ScriptNote response

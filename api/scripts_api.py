@@ -1,16 +1,21 @@
+import os
+
 ##### Fastapi Imports
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File, FastAPI
+
+##### Azure imports
+from azure.storage.blob import BlobClient
 
 ##### Database Models & SQLAlchemy Imports
 from sqlalchemy.orm import Session
 from db_models.db_setup import get_db
 from datetime import datetime
 import uuid
-from typing import List
+from typing import List, Optional
 
 ##### Pydantic Imports
-from pydantic_schemas.script_pydantic_models import Script, ScriptCreate, ScriptNote, ScriptNoteCreate
+from pydantic_schemas.script_pydantic_models import Script, ScriptCreate, ScriptNote, ScriptNoteCreate, ScriptSubmission
 from pydantic_schemas.user_pydantic_models import UserCreate
 from pydantic_schemas.generic_pydantic_models import CustomResponse
 
@@ -21,7 +26,9 @@ from .api_utils import project_utils
 
 from loguru import logger
 
+
 router = APIRouter()
+app = FastAPI()
 
 @router.post("/scripts", tags=["Scripts"], response_model=CustomResponse)
 def create_script(
@@ -35,7 +42,6 @@ def create_script(
     new_script = script_utils.create_script(db, scripts.title, scripts.genre, current_user.user_id, scripts.logline,last_modified_at)
     
     new_script = vars(new_script)
-    print(new_script)
     new_script.pop('_sa_instance_state')
 
     # Create a new project script association
@@ -181,6 +187,37 @@ def delete_script_note(note_id: int,
         success = True
         message = "Script Notes deleted"
         return CustomResponse(success=success, message=message, data=[])
+
+@router.post("/upload_script_file/{script_id}", tags=["Scripts"], response_model=CustomResponse)
+async def upload_script_file(
+    script_id: uuid.UUID,
+    script_file: UploadFile = File(...), 
+    current_user: UserCreate = Depends(user_utils.get_current_user)
+):
+    try:
+        AZURE_CONNECTION_STRING=os.getenv("AZURE_CONNECTION_STRING")
+        user_id = str(current_user.user_id)
+        script_id = str(script_id)
+        filename = str(script_file.filename)
+
+        # Define your Azure storage blob client
+        blob = BlobClient.from_connection_string(
+                    container_name="scripts-uploaded",
+                    blob_name=f"{user_id}/{script_id}/{filename}",
+                    conn_str=AZURE_CONNECTION_STRING
+        )
+
+        # Upload the file
+        blob.upload_blob(script_file.file.read())
+        success = True
+        message = "Script File uploaded sucessfully"
+        return CustomResponse(success=success, message=message, data=[])
+    
+    except Exception as e:
+        success = False
+        message = "Script File upload failed, Kindly upload again"
+        return CustomResponse(success=success, message=message, data=[])
+
 
 # # Get all ScriptNotes for a Script
 # @router.get("/script_notes/{script_id}/notes", response_model=List[ScriptNote], tags=["Script Notes"])

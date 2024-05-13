@@ -28,7 +28,6 @@ from loguru import logger
 
 
 router = APIRouter()
-app = FastAPI()
 
 @router.post("/scripts", tags=["Scripts"], response_model=CustomResponse)
 def create_script(
@@ -188,6 +187,7 @@ def delete_script_note(note_id: int,
         message = "Script Notes deleted"
         return CustomResponse(success=success, message=message, data=[])
 
+
 @router.post("/upload_script_file/{script_id}", tags=["Scripts"], response_model=CustomResponse)
 async def upload_script_file(
     script_id: uuid.UUID,
@@ -217,6 +217,64 @@ async def upload_script_file(
         success = False
         message = "Script File upload failed, Kindly upload again"
         return CustomResponse(success=success, message=message, data=[])
+    
+
+@router.post("/create_script_with_file_upload", tags=["Scripts"], response_model=CustomResponse)
+async def create_script_with_file_uploaded(
+    script_file: UploadFile = File(...), 
+    current_user: UserCreate = Depends(user_utils.get_current_user),
+    db: Session = Depends(get_db)
+):
+    
+    try:
+        # Extract filename without extension
+        filename = os.path.splitext(script_file.filename)[0]
+
+        # Create a new script entry
+        script_data = ScriptCreate(
+            title=filename,
+            genre="",  # Empty genre
+            logline=""  # Empty logline
+        )
+        new_script = script_utils.create_script(
+            db=db,
+            title=script_data.title,
+            genre=script_data.genre,
+            user_id=current_user.user_id,
+            logline=script_data.logline,
+            last_modified_at=datetime.utcnow()
+        )
+
+
+        if not new_script:
+            logger.error("Error in creating script data")
+            logger.error(f"{new_script}")
+            return CustomResponse(success=False, message="Error in creating script data ", data=[])
+
+        # Convert SQLAlchemy model instance to dictionary and remove SQLAlchemy instance state
+        new_script_dict = vars(new_script)
+        new_script_dict.pop('_sa_instance_state', None)
+
+        user_id = str(current_user.user_id)
+        script_id = str(new_script_dict.get("script_id"))
+        filename = str(script_file.filename)
+
+        # Upload the file
+        status = script_utils.upload_file_to_blob_storage(user_id=user_id, script_id=script_id, filename=filename, script_file=script_file)
+
+        if status:
+            logger.info("Script file uploaded successfully")
+            return CustomResponse(success=True, message="Script uploaded and created successfully", data=[new_script_dict])
+        else:
+            logger.error("Error in uploading script file in cloud")
+            return CustomResponse(success=False, message="Error in uploading script file in cloud", data=[])
+
+    except Exception as e:
+        logger.error("Exception occured, script creation or script file upload")
+        logger.error(f"{e}")
+        success = False
+        message = "Script File upload failed, Kindly upload again"
+        return CustomResponse(success=success, message=message, data=[])        
 
 
 # # Get all ScriptNotes for a Script
@@ -225,3 +283,4 @@ async def upload_script_file(
 #                      db: Session = Depends(get_db),
 #                      current_user: UserCreate = Depends(user_utils.get_current_user)):
 #     return script_utils.get_script_notes_by_script_id(db=db, script_id=script_id)
+    

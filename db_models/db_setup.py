@@ -10,7 +10,7 @@ from loguru import logger
 
 import os
 
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql+psycopg2://postgres:admin@localhost/gp_dev_db")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db")
 
 logger.info(SQLALCHEMY_DATABASE_URL)
 # postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db

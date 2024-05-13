@@ -19,9 +19,19 @@ class Script(Timestamp, Base):
     title = Column(String)
     genre = Column(String)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
-    last_modified_at = Column(DateTime, onupdate=datetime.utcnow)
     logline = Column(String)
     user = relationship("User", backref="scripts")
+
+class ScriptAIMapping(Timestamp, Base):
+    __tablename__ = 'script_ai_mapping'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, unique=True, nullable=False, default= uuid.uuid4)
+    script_id = Column(UUID(as_uuid=True), ForeignKey('scripts.script_id'), nullable=False)
+    taskingai_chat_id = Column(String, nullable=False)
+    info_column = Column(String, nullable=False) #### columns for any other information
+
+    script = relationship("Script", backref="ai_mappings")
+
 
 class ScriptVersion(Timestamp, Base):
     __tablename__ = 'script_versions'

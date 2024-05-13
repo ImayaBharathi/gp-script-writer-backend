@@ -3,6 +3,10 @@ from db_models.models import scripts_db_models
 from pydantic_schemas.script_pydantic_models import ScriptNoteCreate, ScriptNote
 from typing import List
 import uuid
+import os
+from loguru import logger
+##### Azure imports
+from azure.storage.blob import BlobClient
 
 def create_script(
     db: Session,
@@ -97,3 +101,23 @@ def delete_script_note(db: Session, db_note: scripts_db_models.ScriptNotes):
 # Get all ScriptNotes for a Script
 def get_script_notes_by_script_id(db: Session, script_id: str) -> List[scripts_db_models.ScriptNotes]:
     return db.query(scripts_db_models.ScriptNotes).filter(scripts_db_models.ScriptNotes.script_id == script_id).all()
+
+
+def upload_file_to_blob_storage(user_id: uuid.UUID, script_id: uuid.UUID, filename: str, script_file):
+    blob = ""
+    try:
+        AZURE_CONNECTION_STRING=os.getenv("AZURE_CONNECTION_STRING")
+        blob = BlobClient.from_connection_string(
+                    container_name="scripts-uploaded",
+                    blob_name=f"{user_id}/{script_id}/{filename}",
+                    conn_str=AZURE_CONNECTION_STRING
+        )
+        # Upload the file
+        blob.upload_blob(script_file.file.read())
+        return True
+
+
+    except Exception as e:
+        logger.error("Exception occurred at file upload")
+        logger.error(f"{e}")
+        return False

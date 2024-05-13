@@ -22,6 +22,7 @@ azure-storage-blob = "^12.19.0"
 loguru = "^0.7.2"
 beautifulsoup4 = "^4.12.3"
 tqdm = "^4.66.1"
+taskingai = "0.2.2"
 
 
 [build-system]

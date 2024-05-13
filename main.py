@@ -6,7 +6,7 @@ import api.users_api
 import api.scripts_api
 import api.script_versions_api
 import api.projects_api
-
+import api.gp_ai_tasking_ai
 
 ##### DB Engine & Model Imports
 from db_models.db_setup import engine
@@ -40,6 +40,7 @@ app.include_router(api.users_api.router)
 app.include_router(api.scripts_api.router)
 app.include_router(api.script_versions_api.router)
 app.include_router(api.projects_api.router)
+app.include_router(api.gp_ai_tasking_ai.router)
 
 @app.get("/health_check", tags=["Health Check"]) #### the status check endpoint is duplicated cause most cloud service expect this under /health_check url
 def status_check():

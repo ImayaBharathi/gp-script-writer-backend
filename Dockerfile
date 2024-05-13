@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.12
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -20,11 +20,12 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 # Copy only the dependencies files to leverage Docker cache
-COPY pyproject.toml poetry.lock /app/
+COPY pyproject.toml /app/
 
 # Install project dependencies
-RUN poetry install --no-root --no-dev
+RUN poetry install --only main --no-dev
 
+RUN poetry add langchain-core
 # Set the environment variable for the database URL
 # ARG DATABASE_URL=postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db
 ENV SQLALCHEMY_DATABASE_URL="postgresql+psycopg2://postgres:gp_sql_backend_123@gpdevbackend.postgres.database.azure.com/gp_dev_db"

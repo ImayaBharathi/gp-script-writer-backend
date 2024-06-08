@@ -20,7 +20,7 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 # Copy only the dependencies files to leverage Docker cache
-COPY pyproject.toml /app/
+COPY pyproject-for-prod.toml /app/pyproject.toml
 
 # Install project dependencies
 RUN poetry install --only main --no-dev

@@ -6,7 +6,7 @@ authors = ["imayabharathi-mv <imayabharathi@mindvalley.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.12"
 alembic = "^1.13.1"
 fastapi = "^0.108.0"
 uvicorn = {extras = ["standard"], version = "^0.25.0"}

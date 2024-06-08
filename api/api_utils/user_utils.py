@@ -74,7 +74,11 @@ def create_user(db: Session, user: UserCreate):
         refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         access_token = create_access_token(data={"sub": db_user.email}, expires_delta=access_token_expires)
         refresh_token = create_access_token(data={"sub": db_user.email}, expires_delta=refresh_token_expires)
-        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+        
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer",
+                "user_id": str(db_user.user_id),  # Convert UUID to string
+                "username": db_user.username
+                }
     except IntegrityError:
         db.rollback()
         return {"message": "Error creating user"}
@@ -92,7 +96,11 @@ def create_tokens_for_user(user: users_db_models.User):
     refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
     refresh_token = create_access_token(data={"sub": user.email}, expires_delta=refresh_token_expires)
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer", 
+            "user_id": str(user.user_id),  # Convert UUID to string
+            "username": user.username
+            }
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Optional[users_db_models.User]:
@@ -150,7 +158,9 @@ def refresh_access_token(db:Session,refresh_token: str) -> str:
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "user_id": str(user.user_id),  # Convert UUID to string
+        "username": user.username
     }
 
 
